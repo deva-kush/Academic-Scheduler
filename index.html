@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Smart Campus Optimizer — intelligent academic scheduling and resource allocation dashboard">
+    <title>Smart Campus Optimizer</title>
+
+    <style>
+        :root {
+            --bg: #f6f8fc;
+            --surface: #ffffff;
+            --surface-2: #f8fafc;
+            --sidebar: #0b1220;
+            --sidebar-2: #111a2c;
+            --text: #172033;
+            --muted: #667085;
+            --line: #e6eaf0;
+            --primary: #2563eb;
+            --primary-2: #1d4ed8;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --purple: #7c3aed;
+            --shadow: 0 8px 30px rgba(15, 23, 42, .06);
+            --shadow-lg: 0 18px 55px rgba(15, 23, 42, .10);
+            --radius: 16px;
+            --sidebar-width: 250px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+
+        /* ---------------- Layout ---------------- */
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 50;
+            padding: 22px 14px;
+            display: flex;
+            flex-direction: column;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(37, 99, 235, .22), transparent 28%),
+                linear-gradient(180deg, var(--sidebar), #080d18);
+            color: #cbd5e1;
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 5px 10px 24px;
+        }
+
+        .brand-mark {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            color: white;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            box-shadow: 0 8px 22px rgba(37,99,235,.35);
+        }
+
+        .brand-title {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .brand-subtitle {
+            color: #7f8da5;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        .nav-label {
+            padding: 18px 11px 7px;
+            color: #60708c;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .nav {
+            display: grid;
+            gap: 4px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #aebbd0;
+            border-radius: 10px;
+            padding: 10px 11px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 650;
+            transition: .18s ease;
+        }
+
+        .nav-btn:hover {
+            color: white;
+            background: rgba(255,255,255,.06);
+        }
+
+        .nav-btn.active {
+            color: white;
+            background: rgba(37,99,235,.18);
+            border-color: rgba(96,165,250,.18);
+            box-shadow: inset 3px 0 0 #3b82f6;
+        }
+
+        .nav-icon {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(255,255,255,.05);
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px 10px 2px;
+            color: #60708c;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .main {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            background: rgba(246,248,252,.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(230,234,240,.85);
+        }
+
+        .topbar-left h1 {
+            font-size: 19px;
+            letter-spacing: -.02em;
+        }
+
+        .topbar-left p {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 11px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: #475467;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(15,23,42,.03);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 4px rgba(22,163,74,.10);
+        }
+
+        .content {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 28px 30px 50px;
+        }
+
+        /* ---------------- Dashboard ---------------- */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
+            border-radius: 22px;
+            color: white;
+            background:
+                radial-gradient(circle at 85% 20%, rgba(124,58,237,.48), transparent 26%),
+                radial-gradient(circle at 65% 90%, rgba(37,99,235,.38), transparent 35%),
+                linear-gradient(135deg, #0f1d3a, #142d5c 58%, #182447);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 20px;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            right: -100px;
+            bottom: -120px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50%;
+            box-shadow: 0 0 0 30px rgba(255,255,255,.025), 0 0 0 60px rgba(255,255,255,.018);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 9px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 999px;
+            color: #c7d8ff;
+            background: rgba(255,255,255,.06);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .hero h2 {
+            margin-top: 12px;
+            font-size: clamp(25px, 3vw, 37px);
+            line-height: 1.08;
+            letter-spacing: -.035em;
+        }
+
+        .hero p {
+            max-width: 640px;
+            margin-top: 10px;
+            color: #b8c8e5;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 9px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .hero-btn {
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 10px;
+            padding: 9px 13px;
+            color: white;
+            background: rgba(255,255,255,.08);
+            font-size: 12px;
+            font-weight: 750;
+            transition: .18s ease;
+        }
+
+        .hero-btn:hover { background: rgba(255,255,255,.15); }
+        .hero-btn.primary { background: #fff; color: #17305f; }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            padding: 17px;
+            box-shadow: var(--shadow);
+        }
+
+        .metric-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .metric-icon {
+            width: 31px;
+            height: 31px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .metric-value {
+            margin-top: 12px;
+            font-size: 25px;
+            font-weight: 850;
+            letter-spacing: -.03em;
+        }
+
+        .metric-caption {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        /* ---------------- Tabs / sections ---------------- */
+
+        .section { display: none; animation: fade .2s ease; }
+        .section.active { display: block; }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 15px;
+            margin: 5px 0 16px;
+        }
+
+        .section-heading h3 {
+            font-size: 17px;
+            letter-spacing: -.015em;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            margin-top: 3px;
+            font-size: 11px;
+        }
+
+        .section-tools {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 19px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .card-icon.green { background: #ecfdf3; color: var(--success); }
+        .card-icon.amber { background: #fff7e8; color: var(--warning); }
+        .card-icon.purple { background: #f4efff; color: var(--purple); }
+        .card-icon.rose { background: #fff0f1; color: var(--danger); }
+
+        .card-title { font-size: 13px; font-weight: 820; }
+        .card-subtitle { color: var(--muted); font-size: 10px; margin-top: 2px; }
+
+        /* ---------------- Scheduler ---------------- */
+
+        .scheduler-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 13px;
+            margin-bottom: 16px;
+        }
+
+        .scheduler-card {
+            text-align: left;
+            border: 1px solid var(--line);
+            background: white;
+            border-radius: 15px;
+            padding: 17px;
+            box-shadow: var(--shadow);
+            transition: .2s ease;
+        }
+
+        .scheduler-card:hover {
+            transform: translateY(-2px);
+            border-color: #bfd1f5;
+            box-shadow: 0 14px 30px rgba(37,99,235,.09);
+        }
+
+        .scheduler-card .big-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: #eef4ff;
+            font-size: 20px;
+            margin-bottom: 13px;
+        }
+
+        .scheduler-card strong { display: block; font-size: 13px; }
+        .scheduler-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+
+        .run-status {
+            display: none;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font-size: 11px;
+            padding: 8px 0;
+        }
+
+        .run-status.show { display: flex; }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #dbe5f5;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .output-card { overflow: hidden; }
+
+        .output-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 9px;
+        }
+
+        .output-label {
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .output-actions { display: flex; gap: 6px; }
+
+        .mini-btn {
+            border: 1px solid var(--line);
+            background: white;
+            border-radius: 7px;
+            padding: 5px 8px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .mini-btn:hover { color: var(--primary); border-color: #bfd1f5; }
+
+        .output-area {
+            min-height: 290px;
+            max-height: 600px;
+            overflow: auto;
+            padding: 17px;
+            border-radius: 12px;
+            border: 1px solid #202d43;
+            background: #0a1220;
+            color: #a9c8ff;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font: 12px/1.65 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        .output-area.success { color: #a7f3c1; }
+        .output-area.error { color: #fca5a5; }
+
+        /* ---------------- Forms ---------------- */
+
+        .field { margin-bottom: 12px; }
+
+        .field label {
+            display: block;
+            margin-bottom: 5px;
+            color: #526074;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 40px;
+            border: 1px solid var(--line);
+            outline: none;
+            border-radius: 9px;
+            padding: 0 11px;
+            color: var(--text);
+            background: #fbfcfe;
+            font-size: 12px;
+            transition: .16s ease;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            background: white;
+            border-color: #8bb1f7;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.09);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            min-height: 40px;
+            border: 0;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 800;
+            transition: .18s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { color: white; background: var(--primary); }
+        .btn-primary:hover { background: var(--primary-2); }
+        .btn-success { color: white; background: var(--success); }
+
+        .note {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border: 1px solid #dbe7fb;
+            border-radius: 9px;
+            color: #365a98;
+            background: #f3f7ff;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        /* ---------------- Data tables ---------------- */
+
+        .view-tabs {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 3px;
+        }
+
+        .view-tab {
+            white-space: nowrap;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 7px 10px;
+            color: var(--muted);
+            background: white;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .view-tab.active {
+            color: var(--primary);
+            background: #eef4ff;
+            border-color: #c8dafb;
+        }
+
+        .table-card { margin-top: 12px; }
+
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .search {
+            max-width: 260px;
+            width: 100%;
+            height: 36px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0 10px;
+            outline: none;
+            font-size: 11px;
+        }
+
+        .search:focus { border-color: #8bb1f7; }
+
+        .data-table-wrap {
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 520px;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 10px 12px;
+            text-align: left;
+            background: #f7f9fc;
+            border-bottom: 1px solid var(--line);
+            color: #68768b;
+            font-size: 9px;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eef1f5;
+            color: #354052;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+        tbody tr:hover td { background: #fbfcff; }
+
+        .empty-msg {
+            padding: 25px !important;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .count-badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        /* ---------------- Toast / responsive ---------------- */
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 100;
+            min-width: 240px;
+            max-width: 380px;
+            padding: 12px 15px;
+            border-radius: 11px;
+            color: white;
+            background: #182235;
+            box-shadow: 0 18px 45px rgba(15,23,42,.25);
+            font-size: 11px;
+            font-weight: 700;
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: .22s ease;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-left: 4px solid #22c55e; }
+        .toast.error { border-left: 4px solid #ef4444; }
+
+        .mobile-menu {
+            display: none;
+            border: 1px solid var(--line);
+            background: white;
+            border-radius: 8px;
+            padding: 7px 9px;
+        }
+
+        @media (max-width: 1050px) {
+            .metrics { grid-template-columns: repeat(2, 1fr); }
+            .scheduler-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 760px) {
+            :root { --sidebar-width: 0px; }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform .2s ease;
+            }
+
+            .sidebar.open { transform: translateX(0); }
+
+            .main { margin-left: 0; width: 100%; }
+
+            .topbar { padding: 0 16px; }
+            .mobile-menu { display: block; }
+
+            .content { padding: 18px 15px 35px; }
+            .metrics { grid-template-columns: 1fr 1fr; }
+            .scheduler-grid { grid-template-columns: 1fr 1fr; }
+            .hero { padding: 22px; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .metrics, .scheduler-grid { grid-template-columns: 1fr; }
+            .hero h2 { font-size: 26px; }
+            .status-pill { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-mark">SC</div>
+            <div>
+                <div class="brand-title">Smart Campus<br>Optimizer</div>
+                <div class="brand-subtitle">Scheduling intelligence</div>
+            </div>
+        </div>
+
+        <div class="nav-label">Workspace</div>
+        <nav class="nav">
+            <button class="nav-btn active" data-section="run" onclick="showTab('run')">
+                <span class="nav-icon">⚡</span> Scheduler
+            </button>
+            <button class="nav-btn" data-section="add" onclick="showTab('add')">
+                <span class="nav-icon">＋</span> Manage Data
+            </button>
+            <button class="nav-btn" data-section="view" onclick="showTab('view')">
+                <span class="nav-icon">▤</span> Data Explorer
+            </button>
+        </nav>
+
+        <div class="nav-label">Quick Actions</div>
+        <nav class="nav">
+            <button class="nav-btn" onclick="run(2)">
+                <span class="nav-icon">◈</span> Exam Slots
+            </button>
+            <button class="nav-btn" onclick="run(3)">
+                <span class="nav-icon">⌗</span> Exam Rooms
+            </button>
+            <button class="nav-btn" onclick="run(4)">
+                <span class="nav-icon">◇</span> Events
+            </button>
+            <button class="nav-btn" onclick="run(5)">
+                <span class="nav-icon">▦</span> Timetable
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            Optimization engine<br>
+            C++ scheduling core · Flask API
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1>Campus Operations</h1>
+                <p>Plan academic resources with constraint-aware scheduling.</p>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:9px">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    Scheduler API ready
+                </div>
+                <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <!-- Hero -->
+            <section class="hero">
+                <div class="hero-content">
+                    <span class="eyebrow">Smart scheduling platform</span>
+                    <h2>Turn campus constraints into optimized schedules.</h2>
+                    <p>
+                        Coordinate exams, classrooms, events and weekly courses using
+                        priority scheduling, conflict detection, capacity-aware allocation
+                        and bipartite matching.
+                    </p>
+
+                    <div class="hero-actions">
+                        <button class="hero-btn primary" onclick="run(5)">Generate timetable →</button>
+                        <button class="hero-btn" onclick="showTab('add')">Manage campus data</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live metrics -->
+            <section class="metrics">
+                <div class="metric">
+                    <div class="metric-top">
+                        <span>Rooms</span><span class="metric-icon">▣</span>
+                    </div>
+                    <div class="metric-value" id="metric-rooms">—</div>
+                    <div class="metric-caption">Available classrooms & halls</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-top">
+                        <span>Courses</span><span class="metric-icon">◫</span>
+                    </div>
+                    <div class="metric-value" id="metric-courses">—</div>
+                    <div class="metric-caption">Registered academic courses</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-top">
+                        <span>Exams</span><span class="metric-icon">◈</span>
+                    </div>
+                    <div class="metric-value" id="metric-exams">—</div>
+                    <div class="metric-caption">Exam scheduling workload</div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-top">
+                        <span>Events</span><span class="metric-icon">◇</span>
+                    </div>
+                    <div class="metric-value" id="metric-events">—</div>
+                    <div class="metric-caption">Campus events to allocate</div>
+                </div>
+            </section>
+
+            <!-- Scheduler -->
+            <section class="section active" id="tab-run">
+                <div class="section-heading">
+                    <div>
+                        <h3>Optimization Engine</h3>
+                        <p>Choose a scheduling workflow to execute the C++ optimization core.</p>
+                    </div>
+                </div>
+
+                <div class="scheduler-grid">
+                    <button class="scheduler-card" onclick="run(2)">
+                        <div class="big-icon">◈</div>
+                        <strong>Exam Slot Analysis</strong>
+                        <span>Priority queue + conflict-free slot assignment.</span>
+                    </button>
+
+                    <button class="scheduler-card" onclick="run(3)">
+                        <div class="big-icon">⌗</div>
+                        <strong>Exam Room Allocation</strong>
+                        <span>Bipartite matching + capacity-fit room assignment.</span>
+                    </button>
+
+                    <button class="scheduler-card" onclick="run(4)">
+                        <div class="big-icon">◇</div>
+                        <strong>Event Scheduling</strong>
+                        <span>Priority-aware room assignment with capacity reasoning.</span>
+                    </button>
+
+                    <button class="scheduler-card" onclick="run(5)">
+                        <div class="big-icon">▦</div>
+                        <strong>7-Day Timetable</strong>
+                        <span>Course conflict detection across 7 days and 6 periods.</span>
+                    </button>
+                </div>
+
+                <div class="run-status" id="run-status">
+                    <span class="spinner"></span>
+                    <span id="run-status-text">Running optimization engine…</span>
+                </div>
+
+                <div class="card output-card">
+                    <div class="output-head">
+                        <div class="output-label">Execution Output</div>
+                        <div class="output-actions">
+                            <button class="mini-btn" onclick="copyOutput()">Copy</button>
+                            <button class="mini-btn" onclick="clearOutput()">Clear</button>
+                        </div>
+                    </div>
+                    <pre class="output-area" id="output">Select an optimization workflow above to generate a schedule.</pre>
+                </div>
+            </section>
+
+            <!-- Add -->
+            <section class="section" id="tab-add">
+                <div class="section-heading">
+                    <div>
+                        <h3>Manage Campus Data</h3>
+                        <p>Add rooms, courses, registrations, exams and events to the scheduling dataset.</p>
+                    </div>
+                </div>
+
+                <div class="grid">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">▣</div>
+                            <div>
+                                <div class="card-title">Add Room</div>
+                                <div class="card-subtitle">Classroom or examination hall</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Room ID</label>
+                                <input id="r-id" type="number" placeholder="e.g. 106">
+                            </div>
+                            <div class="field">
+                                <label>Capacity</label>
+                                <input id="r-cap" type="number" min="1" placeholder="e.g. 120">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Building</label>
+                            <input id="r-bld" placeholder="e.g. Block A">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="addRoom()">＋ Add room</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon green">◫</div>
+                            <div>
+                                <div class="card-title">Add Course</div>
+                                <div class="card-subtitle">Academic course and weekly load</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Course ID</label>
+                                <input id="c-id" type="number" placeholder="e.g. 12">
+                            </div>
+                            <div class="field">
+                                <label>Students</label>
+                                <input id="c-stu" type="number" min="1" placeholder="e.g. 75">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Course Name</label>
+                            <input id="c-name" placeholder="e.g. Operating Systems">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Department</label>
+                                <input id="c-dept" placeholder="e.g. CSE">
+                            </div>
+                            <div class="field">
+                                <label>Occurrences / Week</label>
+                                <input id="c-occ" type="number" min="1" max="7" value="1">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success" onclick="addCourse()">＋ Add course</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon amber">◎</div>
+                            <div>
+                                <div class="card-title">Course Registration</div>
+                                <div class="card-subtitle">Student-course conflict graph input</div>
+                            </div>
+                        </div>
+
+                        <div class="note">
+                            Shared enrollment is used by the scheduler to detect course and exam conflicts.
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Student ID</label>
+                                <input id="reg-stu" type="number" placeholder="e.g. 42">
+                            </div>
+                            <div class="field">
+                                <label>Course ID</label>
+                                <input id="reg-crs" type="number" placeholder="e.g. 12">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="addRegistration()">＋ Register student</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon purple">◈</div>
+                            <div>
+                                <div class="card-title">Add Exam</div>
+                                <div class="card-subtitle">Exam linked to an existing course</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Exam ID</label>
+                                <input id="e-id" type="number" placeholder="e.g. 24">
+                            </div>
+                            <div class="field">
+                                <label>Course ID</label>
+                                <input id="e-crsid" type="number" placeholder="e.g. 12">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Date</label>
+                                <input id="e-date" type="date">
+                            </div>
+                            <div class="field">
+                                <label>Priority</label>
+                                <input id="e-pri" type="number" min="1" max="5" placeholder="1–5">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="addExam()">＋ Add exam</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon rose">◇</div>
+                            <div>
+                                <div class="card-title">Add Event</div>
+                                <div class="card-subtitle">Campus event requiring a room</div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Event ID</label>
+                            <input id="ev-id" type="number" placeholder="e.g. 18">
+                        </div>
+
+                        <div class="field">
+                            <label>Title</label>
+                            <input id="ev-title" placeholder="e.g. HackFest 2026">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Participants</label>
+                                <input id="ev-part" type="number" min="1" placeholder="e.g. 180">
+                            </div>
+                            <div class="field">
+                                <label>Priority</label>
+                                <input id="ev-pri" type="number" min="1" max="5" placeholder="1–5">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success" onclick="addEvent()">＋ Add event</button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- View -->
+            <section class="section" id="tab-view">
+                <div class="section-heading">
+                    <div>
+                        <h3>Data Explorer</h3>
+                        <p>Inspect the records currently available to the optimization engine.</p>
+                    </div>
+                    <div class="section-tools">
+                        <button class="mini-btn" onclick="loadAllViewData()">↻ Refresh</button>
+                    </div>
+                </div>
+
+                <div class="view-tabs">
+                    <button class="view-tab active" data-view="rooms" onclick="showViewTab('rooms')">Rooms</button>
+                    <button class="view-tab" data-view="courses" onclick="showViewTab('courses')">Courses</button>
+                    <button class="view-tab" data-view="exams" onclick="showViewTab('exams')">Exams</button>
+                    <button class="view-tab" data-view="events" onclick="showViewTab('events')">Events</button>
+                    <button class="view-tab" data-view="registrations" onclick="showViewTab('registrations')">Registrations</button>
+                </div>
+
+                <div class="card table-card" id="view-card">
+                    <div class="table-toolbar">
+                        <div>
+                            <strong id="view-title">Rooms</strong>
+                            <span class="count-badge" id="view-count">0 records</span>
+                        </div>
+                        <input class="search" id="table-search" placeholder="Search current table…" oninput="filterTable()">
+                    </div>
+
+                    <div class="data-table-wrap">
+                        <table>
+                            <thead id="table-head"></thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const state = {
+        currentView: "rooms",
+        viewRows: [],
+        toastTimer: null
+    };
+
+    const VIEW_CONFIG = {
+        rooms: {
+            title: "Rooms",
+            endpoint: "/get_rooms",
+            columns: ["ID", "Capacity", "Building"],
+            map: row => [row[0], row[1], row[2]]
+        },
+        courses: {
+            title: "Courses",
+            endpoint: "/get_courses",
+            columns: ["ID", "Name", "Students", "Department", "Occurrences / Week"],
+            map: row => [row[0], row[1], row[2], row[3], row[4] || 1]
+        },
+        exams: {
+            title: "Exams",
+            endpoint: "/get_exams",
+            columns: ["Exam ID", "Course ID", "Date", "Priority"],
+            map: row => [row[0], row[1], row[2], row[3]]
+        },
+        events: {
+            title: "Events",
+            endpoint: "/get_events",
+            columns: ["ID", "Title", "Participants", "Priority"],
+            map: row => [row[0], row[1], row[2], row[3]]
+        },
+        registrations: {
+            title: "Registrations",
+            endpoint: "/get_registrations",
+            columns: ["Student ID", "Course ID"],
+            map: row => [row[0], row[1]]
+        }
+    };
+
+    const el = id => document.getElementById(id);
+
+    function showTab(name) {
+        document.querySelectorAll(".section").forEach(section => {
+            section.classList.toggle("active", section.id === `tab-${name}`);
+        });
+
+        document.querySelectorAll(".nav-btn[data-section]").forEach(button => {
+            button.classList.toggle("active", button.dataset.section === name);
+        });
+
+        if (name === "view") loadAllViewData();
+        closeSidebar();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function toggleSidebar() {
+        el("sidebar").classList.toggle("open");
+    }
+
+    function closeSidebar() {
+        el("sidebar").classList.remove("open");
+    }
+
+    function showViewTab(name) {
+        state.currentView = name;
+
+        document.querySelectorAll(".view-tab").forEach(button => {
+            button.classList.toggle("active", button.dataset.view === name);
+        });
+
+        renderTable();
+    }
+
+    function toast(message, type = "success") {
+        const target = el("toast");
+        clearTimeout(state.toastTimer);
+
+        target.textContent = message;
+        target.className = `toast ${type} show`;
+
+        state.toastTimer = setTimeout(() => {
+            target.className = "toast";
+        }, 3000);
+    }
+
+    async function api(url, options = {}) {
+        const response = await fetch(url, options);
+
+        let data;
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error(`Server returned HTTP ${response.status}`);
+        }
+
+        if (!response.ok || data.error) {
+            throw new Error(data.error || `Request failed (${response.status})`);
+        }
+
+        return data;
+    }
+
+    async function run(choice) {
+        showTab("run");
+
+        const output = el("output");
+        const status = el("run-status");
+        const statusText = el("run-status-text");
+
+        const names = {
+            2: "Exam slot analysis",
+            3: "Exam room allocation",
+            4: "Event scheduling",
+            5: "7-day timetable"
+        };
+
+        output.className = "output-area";
+        output.textContent = "";
+        status.classList.add("show");
+        statusText.textContent = `Running ${names[choice] || "scheduler"}…`;
+
+        try {
+            const data = await api(`/generate/${choice}`);
+
+            output.className = "output-area success";
+            output.textContent = data.output || "Scheduler completed without output.";
+            toast(`${names[choice]} completed`, "success");
+        } catch (error) {
+            output.className = "output-area error";
+            output.textContent = `ERROR\n\n${error.message}`;
+            toast(error.message, "error");
+        } finally {
+            status.classList.remove("show");
+            await refreshMetrics();
+        }
+    }
+
+    async function submitForm(endpoint, fields, resetIds) {
+        const payload = {};
+
+        for (const [key, id] of Object.entries(fields)) {
+            payload[key] = el(id).value.trim();
+        }
+
+        if (Object.values(payload).some(value => !value)) {
+            toast("Please complete all required fields.", "error");
+            return;
+        }
+
+        try {
+            const data = await api(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            toast(data.msg || "Saved successfully", "success");
+
+            resetIds.forEach(id => {
+                const node = el(id);
+                if (node) node.value = id === "c-occ" ? "1" : "";
+            });
+
+            await refreshMetrics();
+        } catch (error) {
+            toast(error.message, "error");
+        }
+    }
+
+    function addRoom() {
+        submitForm(
+            "/add_room",
+            { id: "r-id", capacity: "r-cap", building: "r-bld" },
+            ["r-id", "r-cap", "r-bld"]
+        );
+    }
+
+    function addCourse() {
+        submitForm(
+            "/add_course",
+            {
+                id: "c-id",
+                name: "c-name",
+                students: "c-stu",
+                dept: "c-dept",
+                occurrences: "c-occ"
+            },
+            ["c-id", "c-name", "c-stu", "c-dept", "c-occ"]
+        );
+    }
+
+    function addRegistration() {
+        submitForm(
+            "/add_registration",
+            { student: "reg-stu", course: "reg-crs" },
+            ["reg-stu", "reg-crs"]
+        );
+    }
+
+    function addExam() {
+        submitForm(
+            "/add_exam",
+            {
+                id: "e-id",
+                courseId: "e-crsid",
+                date: "e-date",
+                priority: "e-pri"
+            },
+            ["e-id", "e-crsid", "e-date", "e-pri"]
+        );
+    }
+
+    function addEvent() {
+        submitForm(
+            "/add_event",
+            {
+                id: "ev-id",
+                title: "ev-title",
+                participants: "ev-part",
+                priority: "ev-pri"
+            },
+            ["ev-id", "ev-title", "ev-part", "ev-pri"]
+        );
+    }
+
+    async function refreshMetrics() {
+        const sources = Object.entries({
+            rooms: "/get_rooms",
+            courses: "/get_courses",
+            exams: "/get_exams",
+            events: "/get_events"
+        });
+
+        await Promise.all(
+            sources.map(async ([name, endpoint]) => {
+                try {
+                    const rows = await api(endpoint);
+                    el(`metric-${name}`).textContent = rows.length;
+                } catch {
+                    el(`metric-${name}`).textContent = "—";
+                }
+            })
+        );
+    }
+
+    async function loadAllViewData() {
+        const config = VIEW_CONFIG[state.currentView];
+
+        try {
+            state.viewRows = await api(config.endpoint);
+            renderTable();
+        } catch (error) {
+            state.viewRows = [];
+            renderTable(error.message);
+        }
+
+        refreshMetrics();
+    }
+
+    function renderTable(errorMessage = "") {
+        const config = VIEW_CONFIG[state.currentView];
+        const head = el("table-head");
+        const body = el("table-body");
+        const title = el("view-title");
+        const count = el("view-count");
+
+        title.textContent = config.title;
+
+        head.innerHTML = `
+            <tr>${config.columns.map(column => `<th>${escapeHtml(column)}</th>`).join("")}</tr>
+        `;
+
+        if (errorMessage) {
+            count.textContent = "Error";
+            body.innerHTML = `<tr><td class="empty-msg" colspan="${config.columns.length}">${escapeHtml(errorMessage)}</td></tr>`;
+            return;
+        }
+
+        const search = el("table-search").value.toLowerCase();
+
+        const rows = state.viewRows.filter(row =>
+            row.join(" ").toLowerCase().includes(search)
+        );
+
+        count.textContent = `${state.viewRows.length} record${state.viewRows.length === 1 ? "" : "s"}`;
+
+        if (!rows.length) {
+            body.innerHTML = `<tr><td class="empty-msg" colspan="${config.columns.length}">
+                ${state.viewRows.length ? "No matching records." : "No records available yet."}
+            </td></tr>`;
+            return;
+        }
+
+        body.innerHTML = rows.map(row => {
+            const cells = config.map(row);
+            return `<tr>${cells.map(cell => `<td>${escapeHtml(String(cell ?? ""))}</td>`).join("")}</tr>`;
+        }).join("");
+    }
+
+    function filterTable() {
+        renderTable();
+    }
+
+    function escapeHtml(value) {
+        return value
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    async function copyOutput() {
+        const text = el("output").textContent;
+
+        if (!text.trim()) {
+            toast("There is no output to copy.", "error");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(text);
+            toast("Scheduler output copied.", "success");
+        } catch {
+            toast("Clipboard access is unavailable.", "error");
+        }
+    }
+
+    function clearOutput() {
+        el("output").className = "output-area";
+        el("output").textContent = "Output cleared. Run a scheduling workflow to generate a new result.";
+    }
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeSidebar();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        refreshMetrics();
+    });
+</script>
+</body>
+</html>
